@@ -12,9 +12,8 @@
        Using: Playfair Display (editorial serif) + DM Sans (clean body) + Fraunces (deco quote mark)
        Change these @import URLs to swap fonts
   ============================================= -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Fraunces:ital,wght@1,900&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=DM+Sans:wght@300;400;500&family=Plus+Jakarta+Sans:wght@300;400;500&family=Syne:wght@400;700&family=Fraunces:ital,wght@1,900&display=swap"
+  rel="stylesheet"/>
 
   <!-- =============================================
        GLOBAL STYLES & CSS VARIABLES
@@ -594,6 +593,15 @@
         </p>
       </div>
 
+
+      <!-- FONT PICKER -->
+      <div id="font-picker-row" style="margin-bottom:10px;">
+        <p style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;
+          color:var(--ink-muted);font-weight:500;margin-bottom:8px;">Quote Font</p>
+        <div id="font-pills" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+
+      
       <!-- =============================================
            CUSTOM COLOUR PICKER
            Colour swatch + hex input that apply directly to the poster.
@@ -826,6 +834,57 @@
       document.getElementById('preview-book').style.color = p.quoteColor;
     }
 
+        /* QUOTE_FONTS — add/remove fonts here */
+    const QUOTE_FONTS = [
+      { label: 'Playfair',  family: "'Playfair Display', serif",     style: 'italic', weight: '400' },
+      { label: 'Cormorant', family: "'Cormorant Garamond', serif",    style: 'italic', weight: '600' },
+      { label: 'DM Sans',   family: "'DM Sans', sans-serif",          style: 'normal', weight: '300' },
+      { label: 'Jakarta',   family: "'Plus Jakarta Sans', sans-serif", style: 'normal', weight: '400' },
+      { label: 'Syne',      family: "'Syne', sans-serif",             style: 'normal', weight: '400' },
+    ];
+
+    let activeFontIndex = 0;
+
+    function buildFontPills() {
+      const container = document.getElementById('font-pills');
+      container.innerHTML = '';
+      QUOTE_FONTS.forEach((font, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = font.label;
+        btn.dataset.index = i;
+        btn.style.cssText = `
+          padding: 7px 14px;
+          border-radius: 999px;
+          border: 1.5px solid var(--border);
+          background: ${i === activeFontIndex ? 'var(--ink)' : 'transparent'};
+          color: ${i === activeFontIndex ? 'var(--bg)' : 'var(--ink-muted)'};
+          font-family: ${font.family};
+          font-style: ${font.style};
+          font-size: 0.88rem;
+          cursor: pointer;
+          transition: all 0.15s;
+          white-space: nowrap;
+        `;
+        btn.onclick = () => applyFont(i);
+        container.appendChild(btn);
+      });
+    }
+
+    function applyFont(index) {
+      activeFontIndex = index;
+      const font = QUOTE_FONTS[index];
+      const quoteEl = document.getElementById('preview-quote');
+      quoteEl.style.fontFamily = font.family;
+      quoteEl.style.fontStyle  = font.style;
+      quoteEl.style.fontWeight = font.weight;
+
+      document.querySelectorAll('#font-pills button').forEach((btn, i) => {
+        btn.style.background  = i === index ? 'var(--ink)' : 'transparent';
+        btn.style.color       = i === index ? 'var(--bg)'  : 'var(--ink-muted)';
+        btn.style.borderColor = i === index ? 'var(--ink)' : 'var(--border)';
+      });
+    }
+
     function generatePoster() {
       const book = document.getElementById('book-name').value.trim();
       const author = document.getElementById('author-name').value.trim();
@@ -847,6 +906,8 @@
 
       /* --- Open the modal --- */
       document.getElementById('modal').classList.add('active');
+        buildFontPills();
+        applyFont(activeFontIndex);
       document.body.style.overflow = 'hidden';
     }
 
